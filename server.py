@@ -36,5 +36,9 @@ async def async_main():
     async with server:
         await server.serve_forever()
 
+
 if __name__ == '__main__':
-    asyncio.run(async_main())
+    try:
+        asyncio.run(async_main())
+    except KeyboardInterrupt:
+        print("Exiting.")
