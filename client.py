@@ -1,6 +1,8 @@
 import asyncio
 import sys
 
+from common import send_message
+
 
 async def tcp_echo_client(name: str):
     reader, writer = await asyncio.open_connection(
@@ -12,8 +14,7 @@ async def tcp_echo_client(name: str):
 
     for line in sys.stdin:
         print(f"Sending: {line!r}")
-        writer.write(line.encode())
-        await writer.drain()
+        await send_message(writer, line)
 
         if line == "quit\n":
             break
