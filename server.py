@@ -1,14 +1,16 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
 
-
 async def handle_echo(reader: StreamReader, writer: StreamWriter):
+    first_message = await reader.read(100)
+    client_name = first_message.decode()
+    print(f"New client: {client_name}")
+
     while True:
         data = await reader.read(100)
         message = data.decode()
-        addr = writer.get_extra_info("peername")
 
-        print(f"Received {message!r} from {addr!r}")
+        print(f"Received {message!r} from {client_name!r}")
 
         if message == "quit":
             break
@@ -17,7 +19,7 @@ async def handle_echo(reader: StreamReader, writer: StreamWriter):
         writer.write(data)
         await writer.drain()
 
-    print("Closing the connection")
+    print(f"{client_name} has left")
     writer.close()
     await writer.wait_closed()
 
