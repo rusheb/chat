@@ -9,17 +9,17 @@ async def send_message(writer: StreamWriter, message: str):
         # Simulate network latency
         await asyncio.sleep(0.1)
 
-async def read_line(reader: StreamReader):
+async def read_line(reader: StreamReader) -> str:
     message = []
     while True:
         # assume we are just getting one char
         data = await reader.read(100)
         char = data.decode()
 
+        message.append(char)
+
         if char == "\n":
             break
-
-        message.append(char)
 
     return "".join(message)
 

@@ -1,7 +1,7 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
 
-from common import read_line
+from common import read_line, send_message
 
 
 async def handle_echo(reader: StreamReader, writer: StreamWriter):
@@ -14,12 +14,11 @@ async def handle_echo(reader: StreamReader, writer: StreamWriter):
 
         print(f"Received {message!r} from {client_name!r}")
 
-        if message == "quit":
+        if message == "quit\n":
             break
 
         print(f"Sending {message!r}")
-        writer.write(message.encode())
-        await writer.drain()
+        await send_message(writer, message)
 
     print(f"{client_name} has left")
     writer.close()

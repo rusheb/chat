@@ -1,7 +1,7 @@
 import asyncio
 import sys
 
-from common import send_message
+from common import send_message, read_line
 
 
 async def tcp_echo_client(name: str):
@@ -19,8 +19,8 @@ async def tcp_echo_client(name: str):
         if line == "quit\n":
             break
 
-        data = await reader.read(100)
-        print(f"Received {data.decode()!r}")
+        data = await read_line(reader)
+        print(f"Received {data!r}")
 
     writer.close()
     await writer.wait_closed()
