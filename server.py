@@ -12,7 +12,7 @@ async def handle_echo(reader: StreamReader, writer: StreamWriter):
 
         print(f"Received {message!r} from {client_name!r}")
 
-        if message == "quit":
+        if message == "quit\n":
             break
 
         print(f"Sending {message!r}")

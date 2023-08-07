@@ -10,13 +10,12 @@ async def tcp_echo_client(name: str):
     writer.write(name.encode())
     await writer.drain()
 
-    while True:
-        message = input()
-        print(f"Sending: {message!r}")
-        writer.write(message.encode())
+    for line in sys.stdin:
+        print(f"Sending: {line!r}")
+        writer.write(line.encode())
         await writer.drain()
 
-        if message == "quit":
+        if line == "quit\n":
             break
 
         data = await reader.read(100)
