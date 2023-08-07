@@ -1,22 +1,24 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
 
+from common import read_line
+
+
 async def handle_echo(reader: StreamReader, writer: StreamWriter):
     first_message = await reader.read(100)
     client_name = first_message.decode()
     print(f"New client: {client_name}")
 
     while True:
-        data = await reader.read(100)
-        message = data.decode()
+        message = await read_line(reader)
 
         print(f"Received {message!r} from {client_name!r}")
 
-        if message == "quit\n":
+        if message == "quit":
             break
 
         print(f"Sending {message!r}")
-        writer.write(data)
+        writer.write(message.encode())
         await writer.drain()
 
     print(f"{client_name} has left")
