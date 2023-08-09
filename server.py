@@ -3,24 +3,28 @@ from asyncio import StreamReader, StreamWriter
 
 from common import read_line, send_message
 
+users = {}
 
 async def handle_echo(reader: StreamReader, writer: StreamWriter):
     first_message = await reader.read(100)
-    client_name = first_message.decode()
-    print(f"New client: {client_name}")
+    username = first_message.decode()
+    print(f"New client: {username}")
+    users[username] = writer
 
     while True:
         message = await read_line(reader)
 
-        print(f"Received {message!r} from {client_name!r}")
+        print(f"Received {message!r} from {username!r}")
 
         if message == "quit\n":
             break
 
         print(f"Sending {message!r}")
-        await send_message(writer, message)
+        for user, user_writer in users.items():
+            print(f"sending to {user}")
+            await send_message(user_writer, message)
 
-    print(f"{client_name} has left")
+    print(f"{username} has left")
     writer.close()
     await writer.wait_closed()
 

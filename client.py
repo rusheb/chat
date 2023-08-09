@@ -4,7 +4,7 @@ import sys
 from common import send_message, read_line
 
 
-async def tcp_echo_client(name: str):
+async def chat_client(name: str):
     reader, writer = await asyncio.open_connection(
         "127.0.0.1", 8888
     )
@@ -31,4 +31,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     name = sys.argv[1]
-    asyncio.run(tcp_echo_client(name))
+    asyncio.run(chat_client(name))
