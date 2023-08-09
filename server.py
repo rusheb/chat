@@ -39,7 +39,7 @@ async def handle_connection(reader: StreamReader, writer: StreamWriter):
             break
 
         for their_queue in users.values():
-            await their_queue.put(message)
+            await their_queue.put(f"<{username}> {message}")
 
     await write_handler
 

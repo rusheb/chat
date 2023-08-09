@@ -26,7 +26,7 @@ async def chat_client(name):
             print("Quitting")
             break
 
-        print(f"Received {message!r}")
+        print(message)
 
     stdin_handler.cancel()
 
