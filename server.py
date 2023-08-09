@@ -18,12 +18,16 @@ async def chat_server(reader: StreamReader, writer: StreamWriter):
 
         print(f"Received {message!r} from {username}")
 
-        for username, user_writer in users.items():
-            await write(user_writer, message)
-
         if message == "quit":
             print(f"{username} has quit.")
+            del users[username]
+            await write(writer, message)
             break
+
+        for username, user_writer in users.items():
+            # Might need the ability to wait for all tasks to finish
+            asyncio.create_task(write(user_writer, message))
+
 
     writer.close()
     await writer.wait_closed()
