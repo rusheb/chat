@@ -1,9 +1,10 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
+from typing import Dict
 
 from common import write, split_lines
 
-users = {}
+users: Dict[str, asyncio.Queue] = {}
 
 async def handle_writes(writer: StreamWriter, queue: asyncio.Queue):
     while True:
@@ -13,21 +14,15 @@ async def handle_writes(writer: StreamWriter, queue: asyncio.Queue):
 async def handle_connection(reader: StreamReader, writer: StreamWriter):
     my_queue = asyncio.Queue()
     write_handler = asyncio.create_task(handle_writes(writer, my_queue))
-    ctx = {
-        "addr": str(writer.get_extra_info("peername")),
-        "username": "",
-    }
+    username = None
+    addr = writer.get_extra_info("peername")
 
     async for message in split_lines(reader):
-        username = ctx['username']
-        addr = ctx['addr']
-
         if not username:
             print("Setting username")
             username = message
-            ctx["username"] = username
             users[username] = my_queue
-            print(f"{username} ({ctx['addr']}) has joined.")
+            print(f"{username} ({addr}) has joined.")
             continue
 
         print(f"Received {message!r} from {username} ({addr})")
