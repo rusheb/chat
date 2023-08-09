@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from asyncio import StreamReader, StreamWriter
 
 from common import write, split_lines
@@ -6,15 +7,21 @@ from common import write, split_lines
 users = {}
 
 async def chat_server(reader: StreamReader, writer: StreamWriter):
-    addr = writer.get_extra_info("peername")
-    print(f"{addr} has joined")
-    async for message in split_lines(reader):
-        print(f"Received {message!r} from {addr}")
+    client_name = None
+    lines = split_lines(reader)
+
+    async for message in lines:
+        if not client_name:
+            client_name = message
+            print(f"{client_name} has joined.")
+            continue
+
+        print(f"Received {message!r} from {client_name}")
 
         await write(writer, message)
 
         if message == "quit":
-            print(f"{addr} has quit.")
+            print(f"{client_name} has quit.")
             break
 
     writer.close()
