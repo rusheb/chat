@@ -2,12 +2,12 @@ import asyncio
 from asyncio import StreamWriter, StreamReader
 
 
-async def send_message(writer: StreamWriter, message: str):
+async def write(writer: StreamWriter, message: str):
     for char in message:
         writer.write(char.encode())
-        await writer.drain()
         # Simulate network latency
         await asyncio.sleep(0.1)
+    await writer.drain()
 
 async def read_line(reader: StreamReader) -> str:
     message = []

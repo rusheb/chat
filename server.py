@@ -1,7 +1,7 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
 
-from common import read_line, send_message
+from common import read_line, write
 
 users = {}
 
@@ -22,7 +22,7 @@ async def handle_echo(reader: StreamReader, writer: StreamWriter):
         print(f"Sending {message!r}")
         for user, user_writer in users.items():
             print(f"sending to {user}")
-            await send_message(user_writer, message)
+            await write(user_writer, message)
 
     print(f"{username} has left")
     writer.close()

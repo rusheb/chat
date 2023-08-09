@@ -1,7 +1,7 @@
 import asyncio
 import sys
 
-from common import send_message, read_line
+from common import write, read_line
 
 
 async def chat_client(name: str):
@@ -14,7 +14,7 @@ async def chat_client(name: str):
 
     for line in sys.stdin:
         print(f"Sending: {line!r}")
-        await send_message(writer, line)
+        await write(writer, line)
 
         if line == "quit\n":
             break
