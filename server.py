@@ -11,18 +11,23 @@ async def handle_writes(writer: StreamWriter, queue: asyncio.Queue):
         await write(writer, message)
 
 async def handle_connection(reader: StreamReader, writer: StreamWriter):
-    username = None
-    queue = asyncio.Queue()
-    addr = writer.get_extra_info("peername")
-
-    write_handler = asyncio.create_task(handle_writes(writer, queue))
+    my_queue = asyncio.Queue()
+    write_handler = asyncio.create_task(handle_writes(writer, my_queue))
+    ctx = {
+        "addr": str(writer.get_extra_info("peername")),
+        "username": "",
+    }
 
     async for message in split_lines(reader):
+        username = ctx['username']
+        addr = ctx['addr']
+
         if not username:
             print("Setting username")
             username = message
-            users[username] = queue
-            print(f"{username} ({addr}) has joined.")
+            ctx["username"] = username
+            users[username] = my_queue
+            print(f"{username} ({ctx['addr']}) has joined.")
             continue
 
         print(f"Received {message!r} from {username} ({addr})")
@@ -30,13 +35,12 @@ async def handle_connection(reader: StreamReader, writer: StreamWriter):
         if message == "quit":
             print(f"{username} left.")
             del users[username]
-            await queue.put(message)
+            await my_queue.put(message)
             break
 
-        for username, queue in users.items():
-            await queue.put(message)
+        for their_queue in users.values():
+            await their_queue.put(message)
 
-    write_handler.cancel()
     await write_handler
 
     writer.close()
