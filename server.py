@@ -1,36 +1,28 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
 
-from common import read_line, write
+from common import write, split_lines
 
 users = {}
 
-async def handle_echo(reader: StreamReader, writer: StreamWriter):
-    first_message = await reader.read(100)
-    username = first_message.decode()
-    print(f"New client: {username}")
-    users[username] = writer
+async def chat_server(reader: StreamReader, writer: StreamWriter):
+    addr = writer.get_extra_info("peername")
+    print(f"{addr} has joined")
+    async for message in split_lines(reader):
+        print(f"Received {message!r} from {addr}")
 
-    while True:
-        message = await read_line(reader)
+        await write(writer, message)
 
-        print(f"Received {message!r} from {username!r}")
-
-        if message == "quit\n":
+        if message == "quit":
+            print(f"{addr} has quit.")
             break
 
-        print(f"Sending {message!r}")
-        for user, user_writer in users.items():
-            print(f"sending to {user}")
-            await write(user_writer, message)
-
-    print(f"{username} has left")
     writer.close()
     await writer.wait_closed()
 
 async def async_main():
     server = await asyncio.start_server(
-        handle_echo, "127.0.0.1", 8888
+        chat_server, "127.0.0.1", 8888
     )
 
     addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)

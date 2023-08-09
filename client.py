@@ -1,34 +1,32 @@
 import asyncio
-import sys
+from asyncio import StreamWriter
 
-from common import write, read_line
+import aiofiles
+
+from common import write, split_lines
 
 
-async def chat_client(name: str):
-    reader, writer = await asyncio.open_connection(
-        "127.0.0.1", 8888
-    )
+async def handle_stdin(writer: StreamWriter):
+    async with aiofiles.open("/dev/stdin", mode="rb") as f:
+        async for line in f:
+            text: str = line.decode()
+            await write(writer, text)
 
-    writer.write(name.encode())
-    await writer.drain()
 
-    for line in sys.stdin:
-        print(f"Sending: {line!r}")
-        await write(writer, line)
+async def chat_client():
+    reader, writer = await asyncio.open_connection("127.0.0.1", 8888)
 
-        if line == "quit\n":
+    stdin_handler = asyncio.create_task(handle_stdin(writer))
+
+    async for message in split_lines(reader):
+        if message == "quit":
+            print("Quitting")
             break
 
-        data = await read_line(reader)
-        print(f"Received {data!r}")
+        print(f"Received {message!r}")
 
-    writer.close()
-    await writer.wait_closed()
+    stdin_handler.cancel()
+
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Usage: client.py <NAME>")
-        sys.exit(1)
-
-    name = sys.argv[1]
-    asyncio.run(chat_client(name))
+    asyncio.run(chat_client())
