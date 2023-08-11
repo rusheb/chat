@@ -1,9 +1,10 @@
 import asyncio
 
-from chat.server import start_chat_server
+from chat.server import ChatServer
 
 if __name__ == '__main__':
     try:
-        asyncio.run(start_chat_server())
+        server = ChatServer()
+        asyncio.run(server.start_chat_server())
     except KeyboardInterrupt:
         print("Exiting.")
