@@ -6,10 +6,16 @@ from common import write, split_lines
 
 users: Dict[str, asyncio.Queue] = {}
 
-async def handle_writes(writer: StreamWriter, queue: asyncio.Queue):
-    while True:
-        message = await queue.get()
-        await write(writer, message)
+async def start_chat_server():
+    server = await asyncio.start_server(
+        handle_connection, "127.0.0.1", 8888
+    )
+
+    addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
+    print(f"serving on {addrs}")
+
+    async with server:
+        await server.serve_forever()
 
 async def handle_connection(reader: StreamReader, writer: StreamWriter):
     my_queue = asyncio.Queue()
@@ -40,21 +46,14 @@ async def handle_connection(reader: StreamReader, writer: StreamWriter):
     writer.close()
     await writer.wait_closed()
 
-
-async def async_main():
-    server = await asyncio.start_server(
-        handle_connection, "127.0.0.1", 8888
-    )
-
-    addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
-    print(f"serving on {addrs}")
-
-    async with server:
-        await server.serve_forever()
+async def handle_writes(writer: StreamWriter, queue: asyncio.Queue):
+    while True:
+        message = await queue.get()
+        await write(writer, message)
 
 
 if __name__ == '__main__':
     try:
-        asyncio.run(async_main())
+        asyncio.run(start_chat_server())
     except KeyboardInterrupt:
         print("Exiting.")
