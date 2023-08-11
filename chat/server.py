@@ -55,9 +55,3 @@ async def handle_writes(writer: StreamWriter, queue: asyncio.Queue):
         message = await queue.get()
         await write(writer, message)
 
-
-if __name__ == '__main__':
-    try:
-        asyncio.run(start_chat_server())
-    except KeyboardInterrupt:
-        print("Exiting.")
