@@ -15,7 +15,10 @@ async def write(writer: StreamWriter, message: str):
 async def split_lines(reader: StreamReader):
     buffer = b""
     while True:
-        buffer = buffer + await reader.read(100)
+        data = await reader.read(100)
+        if data == b"":
+            break
+        buffer = buffer + data
         if b"\n" in buffer:
-            data, buffer = buffer.split(b"\n", 1)
-            yield data.decode()
+            line, buffer = buffer.split(b"\n", 1)
+            yield line.decode()

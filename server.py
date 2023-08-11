@@ -19,7 +19,6 @@ async def handle_connection(reader: StreamReader, writer: StreamWriter):
 
     async for message in split_lines(reader):
         if not username:
-            print("Setting username")
             username = message
             users[username] = my_queue
             print(f"{username} ({addr}) has joined.")
