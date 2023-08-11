@@ -1,7 +1,8 @@
 import asyncio
+
 import pytest
 
-from chat.server import hello_world, start_chat_server
+from chat.server import hello_world, ChatServer
 
 
 def test_dummy_server():
@@ -9,8 +10,11 @@ def test_dummy_server():
 
 @pytest.mark.asyncio()
 async def test_server_can_accept_client():
-    users = {}
-    server_task = asyncio.create_task(start_chat_server())
+    # users = {}
+    server = ChatServer()
+    server_task = asyncio.create_task(server.start())
+    await asyncio.sleep(1)
+
     await asyncio.open_connection("127.0.0.1", 8888)
 
     # assert len(users) == 1

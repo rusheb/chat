@@ -1,8 +1,8 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
-from typing import Dict
 
 from chat.common import write, split_lines
+
 
 # users: Dict[str, asyncio.Queue] = {}
 
@@ -12,17 +12,27 @@ def hello_world():
 class ChatServer:
     def __init__(self):
         self.users = {}
+        self.server = None
 
-    async def start_chat_server(self):
-        server = await asyncio.start_server(
+    async def start(self) -> None:
+        self.server = await asyncio.start_server(
             self.handle_connection, "127.0.0.1", 8888
         )
 
-        addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
+        addrs = ", ".join(str(sock.getsockname()) for sock in self.server.sockets)
         print(f"serving on {addrs}")
 
-        async with server:
-            await server.serve_forever()
+        return self.server
+
+    async def run_forever(self):
+        await self.start()
+        async with self.server:
+            await self.server.serve_forever()
+
+    async def stop(self):
+        if self.server:
+            self.server.close()
+            await self.server.wait_closed()
 
     async def handle_connection(self, reader: StreamReader, writer: StreamWriter):
         my_queue = asyncio.Queue()
