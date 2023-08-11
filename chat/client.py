@@ -7,9 +7,6 @@ import aiofiles
 from chat.common import write, split_lines
 
 
-def hello_world():
-    return "Hello, world!"
-
 async def start_chat_client(name):
     reader, writer = await asyncio.open_connection("127.0.0.1", 8888)
 

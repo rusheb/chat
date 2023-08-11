@@ -2,9 +2,13 @@ import asyncio
 from asyncio import StreamReader, StreamWriter
 from typing import Dict
 
-from common import write, split_lines
+from chat.common import write, split_lines
 
 users: Dict[str, asyncio.Queue] = {}
+
+def hello_world():
+    return "Hello, world!"
+
 
 async def start_chat_server():
     server = await asyncio.start_server(
