@@ -29,5 +29,3 @@ async def handle_stdin(writer: StreamWriter):
         async for line in f:
             text: str = line.decode()
             await write(writer, text)
-
-

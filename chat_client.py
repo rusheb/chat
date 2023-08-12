@@ -3,7 +3,7 @@ import sys
 
 from chat.client import start_chat_client
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if not len(sys.argv) == 2:
         print("USAGE: client.py <name>")
         sys.exit(1)

@@ -5,12 +5,14 @@ import pytest_asyncio
 
 from chat.server import ChatServer
 
+
 @pytest_asyncio.fixture
 async def server():
     chat_server = ChatServer()
     await chat_server.start()
     yield chat_server
     await chat_server.stop()
+
 
 @pytest.mark.asyncio()
 async def test_server(server):
@@ -19,6 +21,7 @@ async def test_server(server):
     await asyncio.sleep(0.01)
     assert len(server.users) == 1
     writer.close()
+
 
 @pytest.mark.asyncio()
 async def test_server_multiple_users(server):
@@ -33,6 +36,7 @@ async def test_server_multiple_users(server):
     for writer in writers:
         writer.close()
 
+
 @pytest.mark.asyncio()
 async def test_client_quits(server):
     _, writer = await asyncio.open_connection(server.HOST, server.PORT)
@@ -46,6 +50,7 @@ async def test_client_quits(server):
     assert len(server.users) == 0
 
     writer.close()
+
 
 @pytest.mark.asyncio()
 async def test_client_quits_abruptly(server):

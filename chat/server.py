@@ -78,5 +78,3 @@ class ChatServer:
         except asyncio.CancelledError:
             with suppress(BrokenPipeError):
                 await write(writer, "quit")
-
-
