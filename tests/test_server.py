@@ -17,7 +17,7 @@ async def server():
 @pytest.mark.asyncio()
 async def test_server(server):
     _, writer = await asyncio.open_connection(server.HOST, server.PORT)
-    writer.write("username\n".encode())
+    writer.write("user0\n".encode())
     await asyncio.sleep(0.01)
     assert len(server.users) == 1
     writer.close()
@@ -60,6 +60,8 @@ async def test_client_quits_abruptly(server):
     await asyncio.sleep(0.01)
     assert len(server.users) == 1
 
+    # close connection abruptly without sending "quit"
     writer.close()
+
     await asyncio.sleep(0.01)
     assert len(server.users) == 0

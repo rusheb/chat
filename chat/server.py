@@ -19,7 +19,9 @@ class ChatServer:
             self.handle_connection, self.HOST, self.PORT
         )
 
-        addrs = ", ".join(str(sock.getsockname()) for sock in self.server.sockets)
+        addrs = ", ".join(
+            str(sock.getsockname()) for sock in self.server.sockets
+        )
         print(f"serving on {addrs}")
 
     async def run_forever(self) -> None:
@@ -27,7 +29,7 @@ class ChatServer:
         async with self.server:
             await self.server.serve_forever()
 
-    async def stop(self):
+    async def stop(self) -> None:
         if self.server:
             self.server.close()
             await self.server.wait_closed()
@@ -35,12 +37,16 @@ class ChatServer:
         while self.connections:
             await asyncio.gather(*self.connections)
 
-    async def handle_connection(self, reader: StreamReader, writer: StreamWriter):
+    async def handle_connection(
+        self, reader: StreamReader, writer: StreamWriter
+    ) -> None:
         current_task = asyncio.current_task()
         self.connections.add(current_task)
 
         user_queue = asyncio.Queue()
-        write_handler = asyncio.create_task(self.handle_writes(writer, user_queue))
+        write_handler = asyncio.create_task(
+            self.handle_writes(writer, user_queue)
+        )
         addr = writer.get_extra_info("peername")
         username = None
 
@@ -70,7 +76,9 @@ class ChatServer:
 
             self.connections.remove(current_task)
 
-    async def handle_writes(self, writer: StreamWriter, queue: asyncio.Queue):
+    async def handle_writes(
+        self, writer: StreamWriter, queue: asyncio.Queue
+    ) -> None:
         try:
             while True:
                 message = await queue.get()

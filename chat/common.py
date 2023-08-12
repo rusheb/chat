@@ -2,7 +2,7 @@ import asyncio
 from asyncio import StreamWriter, StreamReader
 
 
-async def write(writer: StreamWriter, message: str):
+async def write(writer: StreamWriter, message: str) -> None:
     if not message.endswith("\n"):
         message += "\n"
     for char in message:
@@ -12,7 +12,7 @@ async def write(writer: StreamWriter, message: str):
     await writer.drain()
 
 
-async def split_lines(reader: StreamReader):
+async def split_lines(reader: StreamReader) -> str:
     buffer = b""
     while True:
         data = await reader.read(100)
