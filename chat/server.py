@@ -6,6 +6,9 @@ from chat.common import write, split_lines
 
 
 class ChatServer:
+    HOST: str = "127.0.0.1"
+    PORT: str = 8888
+
     def __init__(self):
         self.users = {}
         self.server = None
@@ -13,7 +16,7 @@ class ChatServer:
 
     async def start(self) -> None:
         self.server = await asyncio.start_server(
-            self.handle_connection, "127.0.0.1", 8888
+            self.handle_connection, self.HOST, self.PORT
         )
 
         addrs = ", ".join(str(sock.getsockname()) for sock in self.server.sockets)

@@ -14,7 +14,7 @@ async def server():
 
 @pytest.mark.asyncio()
 async def test_server(server):
-    _, writer = await asyncio.open_connection("127.0.0.1", 8888)
+    _, writer = await asyncio.open_connection(server.HOST, server.PORT)
     writer.write("username\n".encode())
     await asyncio.sleep(0.01)
     assert len(server.users) == 1
@@ -24,7 +24,7 @@ async def test_server(server):
 async def test_server_multiple_users(server):
     writers = []
     for i in range(3):
-        _, writer = await asyncio.open_connection("127.0.0.1", 8888)
+        _, writer = await asyncio.open_connection(server.HOST, server.PORT)
         writer.write(f"user{i}\n".encode())
         writers.append(writer)
 
@@ -35,7 +35,7 @@ async def test_server_multiple_users(server):
 
 @pytest.mark.asyncio()
 async def test_client_quits(server):
-    _, writer = await asyncio.open_connection("127.0.0.1", 8888)
+    _, writer = await asyncio.open_connection(server.HOST, server.PORT)
     writer.write("username\n".encode())
 
     await asyncio.sleep(0.01)
@@ -49,7 +49,7 @@ async def test_client_quits(server):
 
 @pytest.mark.asyncio()
 async def test_client_quits_abruptly(server):
-    _, writer = await asyncio.open_connection("127.0.0.1", 8888)
+    _, writer = await asyncio.open_connection(server.HOST, server.PORT)
     writer.write("username\n".encode())
 
     await asyncio.sleep(0.01)

@@ -3,11 +3,12 @@ from asyncio import StreamWriter
 
 import aiofiles
 
+from chat import server
 from chat.common import write, split_lines
 
 
 async def start_chat_client(name):
-    reader, writer = await asyncio.open_connection("127.0.0.1", 8888)
+    reader, writer = await asyncio.open_connection(server.HOST, server.PORT)
 
     stdin_handler = asyncio.create_task(handle_stdin(writer))
 
