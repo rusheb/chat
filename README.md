@@ -7,6 +7,8 @@ This project was inspired by the really awesome [import asyncio](https://www.you
 
 # Demo
 
+https://github.com/rusheb/chat/assets/26048292/166524f8-7f19-4010-9f27-856609ee5bab
+
 
 # Quickstart
 ## Install dependencies
