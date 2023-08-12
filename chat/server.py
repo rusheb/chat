@@ -55,11 +55,20 @@ class ChatServer:
                 # the first message the client sends is their username
                 if not username:
                     username = message
+                    online = [f"<{user}>" for user in self.users.keys()]
+                    online_message = "Nobody else is here." if not online else (
+                        f"Online users: {', '.join(online)}"
+                    )
+                    await user_queue.put( f"Welcome, <{username}>! {online_message}" )
                     self.users[username] = user_queue
-                    print(f"{username} ({addr}) has joined.")
+                    for user, their_queue in self.users.items():
+                        if user == username:
+                            continue
+                        await their_queue.put(f"<{username}> has joined.")
+                    print(f"<{username}> {addr} has joined.")
                     continue
 
-                print(f"Received {message!r} from {username} ({addr})")
+                print(f"<{username}> {addr} {message!r}")
 
                 if message == "quit":
                     break
@@ -70,7 +79,9 @@ class ChatServer:
         finally:
             if username in self.users:
                 del self.users[username]
-            print(f"{username} ({addr}) has left.")
+            for their_queue in self.users.values():
+                await their_queue.put(f"<{username}> has left.")
+            print(f"<{username}> {addr} has left.")
             write_handler.cancel()
             await write_handler
 

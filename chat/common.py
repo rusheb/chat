@@ -8,7 +8,7 @@ async def write(writer: StreamWriter, message: str) -> None:
     for char in message:
         writer.write(char.encode())
         # Simulate network latency
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.01)
     await writer.drain()
 
 
