@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from asyncio import StreamReader, StreamWriter
 from contextlib import suppress
 
@@ -61,7 +62,8 @@ class ChatServer:
                 for their_queue in self.users.values():
                     await their_queue.put(f"<{username}> {message}")
         finally:
-            del self.users[username]
+            if username in self.users:
+                del self.users[username]
             print(f"{username} ({addr}) has left.")
             write_handler.cancel()
             await write_handler
