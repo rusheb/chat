@@ -6,11 +6,9 @@ Clients can connect to the server, see who's online, and chat in real-time. The 
 This project was inspired by the really awesome [import asyncio](https://www.youtube.com/watch?v=Xbl7XjFYsN4&list=PLhNSoGM2ik6SIkVGXWBwerucXjgP1rHmB) youtube series.
 
 # Demo
+https://github.com/rusheb/chat/assets/26048292/96fcd4f5-deed-457a-84c5-228b30b8fa9e
 
-https://github.com/rusheb/chat/assets/26048292/166524f8-7f19-4010-9f27-856609ee5bab
-
-
-# Quickstart
+# Usage
 ## Install dependencies
 - Get [Poetry](https://python-poetry.org)
 - Install dependencies with `poetry install`
