@@ -1,5 +1,4 @@
 import asyncio
-import traceback
 from asyncio import StreamReader, StreamWriter
 from contextlib import suppress
 
@@ -12,15 +11,13 @@ class ChatServer:
         self.server = None
         self.connections = set()
 
-    async def start(self) -> asyncio.Server:
+    async def start(self) -> None:
         self.server = await asyncio.start_server(
             self.handle_connection, "127.0.0.1", 8888
         )
 
         addrs = ", ".join(str(sock.getsockname()) for sock in self.server.sockets)
         print(f"serving on {addrs}")
-
-        return self.server
 
     async def run_forever(self) -> None:
         await self.start()
