@@ -15,11 +15,11 @@ async def start_chat_client(name):
 
     async for message in split_lines(reader):
         if message == "quit":
-            print("Quitting")
             break
 
         print(message)
 
+    print("Goodbye.")
     stdin_handler.cancel()
 
 

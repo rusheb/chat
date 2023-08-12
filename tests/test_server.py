@@ -2,22 +2,20 @@ import asyncio
 
 import pytest
 
-from chat.server import hello_world, ChatServer
+from chat.server import ChatServer
 
-
-def test_dummy_server():
-    assert hello_world() == "Hello, world!"
 
 @pytest.mark.asyncio()
-async def test_server_can_accept_client():
-    # users = {}
+async def test_server():
     server = ChatServer()
-    server_task = asyncio.create_task(server.start())
-    await asyncio.sleep(0.1)
+    asyncio.create_task(server.start())
+    await asyncio.sleep(0.01)
 
     _, writer = await asyncio.open_connection("127.0.0.1", 8888)
-    writer.write("test\n".encode())
-    await asyncio.sleep(0.1)
+    writer.write("username\n".encode())  # send username
+    await asyncio.sleep(0.01)
 
     assert len(server.users) == 1
-    server_task.cancel()
+
+    writer.close()
+    await server.stop()

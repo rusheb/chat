@@ -1,20 +1,17 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
+from contextlib import suppress
 
 from chat.common import write, split_lines
 
-
-# users: Dict[str, asyncio.Queue] = {}
-
-def hello_world():
-    return "Hello, world!"
 
 class ChatServer:
     def __init__(self):
         self.users = {}
         self.server = None
+        self.connections = set()
 
-    async def start(self) -> None:
+    async def start(self) -> asyncio.Server:
         self.server = await asyncio.start_server(
             self.handle_connection, "127.0.0.1", 8888
         )
@@ -24,7 +21,7 @@ class ChatServer:
 
         return self.server
 
-    async def run_forever(self):
+    async def run_forever(self) -> None:
         await self.start()
         async with self.server:
             await self.server.serve_forever()
@@ -34,37 +31,50 @@ class ChatServer:
             self.server.close()
             await self.server.wait_closed()
 
+        while self.connections:
+            await asyncio.gather(*self.connections)
+
     async def handle_connection(self, reader: StreamReader, writer: StreamWriter):
-        my_queue = asyncio.Queue()
-        write_handler = asyncio.create_task(self.handle_writes(writer, my_queue))
-        username = None
+        current_task = asyncio.current_task()
+        self.connections.add(current_task)
+
+        user_queue = asyncio.Queue()
+        write_handler = asyncio.create_task(self.handle_writes(writer, user_queue))
         addr = writer.get_extra_info("peername")
+        username = None
 
-        async for message in split_lines(reader):
-            if not username:
-                username = message
-                self.users[username] = my_queue
-                print(f"{username} ({addr}) has joined.")
-                continue
+        try:
+            async for message in split_lines(reader):
+                # the first message the client sends is their username
+                if not username:
+                    username = message
+                    self.users[username] = user_queue
+                    print(f"{username} ({addr}) has joined.")
+                    continue
 
-            print(f"Received {message!r} from {username} ({addr})")
+                print(f"Received {message!r} from {username} ({addr})")
 
-            if message == "quit":
-                print(f"{username} left.")
-                del self.users[username]
-                await my_queue.put(message)
-                break
+                if message == "quit":
+                    break
 
-            for their_queue in self.users.values():
-                await their_queue.put(f"<{username}> {message}")
+                # broadcast message to all users
+                for their_queue in self.users.values():
+                    await their_queue.put(f"<{username}> {message}")
+        finally:
+            del self.users[username]
+            print(f"{username} ({addr}) has left.")
+            write_handler.cancel()
+            await write_handler
 
-        await write_handler
-
-        writer.close()
-        await writer.wait_closed()
+            self.connections.remove(current_task)
 
     async def handle_writes(self, writer: StreamWriter, queue: asyncio.Queue):
-        while True:
-            message = await queue.get()
-            await write(writer, message)
+        try:
+            while True:
+                message = await queue.get()
+                await write(writer, message)
+        except asyncio.CancelledError:
+            with suppress(BrokenPipeError):
+                await write(writer, "quit")
+
 
